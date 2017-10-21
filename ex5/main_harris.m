@@ -7,4 +7,9 @@ th = 1e-7;
 %% compute harris corners
 [score, pts] = getHarrisCorners(img, std, kappa, th);
 
-% TODO draw harris corners using drawPts
+%% harris corners
+subplot(1,2,1)
+drawPts((score > 0).*abs(score).^0.25, pts);
+colormap jet
+subplot(1,2,2)
+drawPts(img, pts);
