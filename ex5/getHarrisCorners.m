@@ -8,8 +8,8 @@ trace2 = (xx + yy).^2;
 score = det - kappa*trace2;
 
 
-%imagesc((score > 0).*abs(score).^0.2)
-%colormap gray
+imagesc((score > 0).*abs(score).^0.2)
+colormap gray
 
 
 scoree = NaN(size(score)+2);
