@@ -32,33 +32,30 @@ for i = 1:npts
     A(i,:) = kron(X1(i,:),X2(i,:));
 end
 [U,S,V] = svd(A);
-if det(U) < 0 | det(V) < 0
+if det(U) < 0 || det(V) < 0
     [U,S,V] = svd(-A);
 end
-E = reshape(V(9,:),3,3);
+E = reshape(V(:,9),3,3);
 % project E to essential space
 [U,S,V] = svd(E);
+if det(U) < 0 || det(V) < 0
+    [U,S,V] = svd(-E);
+end
+% S
+% det(U) 
+% det(V)
 E = U * diag([1,1,0]) * V';
 % calculate R and T
-% R = U * [0,1,0;-1,0,0;0,0,1] * V';
-% T = U * [0,-1,0;1,0,0;0,0,1] * U';
-R = U * [0,-1,0;1,0,0;0,0,1] * V';
-T = U * [0,1,0;-1,0,0;0,0,1] * U';
-T = skew2vec(T);
-% homo system for reconstruction
-M = zeros(npts*3,npts+1);
-for i = 1:npts
-   M((i*3-2):(i*3),i) = vec2skew(X2(i,:)) * R * X1(i,:)';
-   M((i*3-2):(i*3),npts+1) = vec2skew(X2(i,:)) * T;
-end
-[U,S,V] = svd(M' * M);
-% back project
-lambda = V(npts+1,1:npts);
-gamma = V(npts+1,npts+1);
-X = zeros(npts,3);
-for i = 1:npts
-   X(i,:) = lambda(i) * R * X1(i,:)' + gamma * T;
-end
-X
-figure
-scatter3(X(:,1),X(:,2),X(:,3));
+Rz1 = [0,1,0;-1,0,0;0,0,1];
+Rz2 = [0,-1,0;1,0,0;0,0,1];
+R1 = U * Rz1 * V';
+R2 = U * Rz2 * V';
+T1 = U * Rz1 * U';
+T2 = U * Rz2 * U';
+T1 = skew2vec(T1);
+T2 = skew2vec(T2);
+% do reconstruction
+backproject(R1,T1,X1,X2,npts);
+backproject(R1,T2,X1,X2,npts);
+backproject(R2,T1,X1,X2,npts);
+backproject(R2,T2,X1,X2,npts);
